@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>푸른파트너자산운용 · HR 챗봇</title>
+
+  <!-- BMW Type Next Latin은 BMW 전용 폰트라 공개되어 있지 않습니다.
+       디자인 가이드가 권장한 대체 폰트 'Inter'(700/300)를 불러옵니다.
+       인터넷이 없을 때는 시스템 기본 글꼴로 자연스럽게 대체됩니다. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       디자인 토큰 (색·간격·모서리) — 여기 값만 바꾸면 사이트 전체가 바뀝니다.
+       ============================================================ */
+    :root {
+      --primary: #1c69d4;
+      --primary-active: #0653b6;
+
+      --canvas: #ffffff;
+      --surface-soft: #f7f7f7;
+      --surface-card: #fafafa;
+      --surface-strong: #ebebeb;
+      --surface-dark: #1a2129;
+      --surface-dark-elevated: #262e38;
+
+      --hairline: #e6e6e6;
+      --hairline-strong: #cccccc;
+
+      --ink: #262626;
+      --body: #3c3c3c;
+      --body-strong: #1a1a1a;
+      --muted: #6b6b6b;
+      --muted-soft: #9a9a9a;
+      --on-primary: #ffffff;
+      --on-dark: #ffffff;
+      --on-dark-soft: #bbbbbb;
+
+      --success: #22c55e;
+      --error: #dc2626;
+
+      --xxs: 4px;  --xs: 8px;  --sm: 12px;  --md: 16px;
+      --lg: 24px;  --xl: 32px;  --xxl: 48px;  --section: 80px;
+
+      --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --max: 1440px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--canvas);
+      color: var(--body);
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 1.55;
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-weight: 700; color: var(--ink); line-height: 1.1; }
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: var(--xl);
+      padding-right: var(--xl);
+    }
+
+    /* ===================== 버튼 ===================== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--xs);
+      height: 48px; padding: 0 var(--xl);
+      font-family: var(--font); font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
+      border: 1px solid transparent; border-radius: 0; cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:active { background: var(--primary-active); }
+    .btn-secondary { background: var(--canvas); color: var(--ink); border-color: var(--hairline-strong); }
+    .btn-on-dark { background: transparent; color: var(--on-dark); border-color: var(--on-dark); }
+    .btn-on-dark:active { background: rgba(255,255,255,.1); }
+
+    /* ===================== 상단 내비게이션 ===================== */
+    .top-nav {
+      position: sticky; top: 0; z-index: 50; height: 64px;
+      background: var(--canvas); border-bottom: 1px solid var(--hairline);
+    }
+    .top-nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: var(--sm); font-weight: 700; letter-spacing: .5px; color: var(--ink); }
+    /* 로고: 실제 이미지에서 아이콘 부분만 잘라 보여줌 (흰 글자는 흰 배경에서 안 보이므로) */
+    .logo-icon { height: 40px; width: 56px; overflow: hidden; display: block; flex: 0 0 auto; }
+    .logo-icon img { height: 40px; width: auto; display: block; }
+    /* 히어로(어두운 배경)에는 전체 로고를 그대로 표시 */
+    .hero-logo { height: 44px; width: auto; display: block; margin-bottom: var(--lg); }
+    .nav-menu { display: flex; gap: var(--xl); list-style: none; }
+    .nav-menu a { font-size: 14px; font-weight: 400; letter-spacing: .3px; color: var(--ink); padding: 8px 0; }
+    .nav-menu a:hover { color: var(--primary); }
+    .nav-right { display: flex; align-items: center; gap: var(--md); }
+    .hamburger { display: none; width: 44px; height: 44px; border: none; background: transparent; cursor: pointer; font-size: 22px; color: var(--ink); }
+
+    /* ===================== 히어로 (진한 네이비) ===================== */
+    .hero-dark { background: var(--surface-dark); color: var(--on-dark); padding: var(--section) 0; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--xxl); align-items: center; }
+    .eyebrow-light {
+      font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--on-dark-soft); margin-bottom: var(--md);
+    }
+    .hero-dark h1 { color: var(--on-dark); font-size: 56px; line-height: 1.05; margin-bottom: var(--lg); }
+    .hero-dark .sub { font-size: 18px; font-weight: 300; color: var(--on-dark-soft); max-width: 520px; margin-bottom: var(--xl); }
+
+    /* ===================== 채팅 패널 (히어로 위 카드) ===================== */
+    .chat-panel {
+      background: var(--surface-dark-elevated);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex; flex-direction: column; height: 460px;
+    }
+    .chat-head {
+      display: flex; align-items: center; gap: var(--sm);
+      padding: var(--md) var(--lg); border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .chat-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+    .chat-head .title { font-size: 14px; font-weight: 700; color: var(--on-dark); }
+    .chat-head .status { font-size: 12px; font-weight: 400; color: var(--on-dark-soft); letter-spacing: .3px; }
+
+    .chat-log { flex: 1; overflow-y: auto; padding: var(--lg); display: flex; flex-direction: column; gap: var(--sm); }
+    .msg { max-width: 85%; padding: var(--sm) var(--md); font-size: 14px; font-weight: 300; line-height: 1.5; }
+    .msg.bot { background: rgba(255,255,255,.06); color: var(--on-dark); align-self: flex-start; }
+    .msg.user { background: var(--primary); color: var(--on-primary); align-self: flex-end; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: var(--xs); padding: 0 var(--lg) var(--md); }
+    .chip {
+      font-size: 12px; font-weight: 400; letter-spacing: .3px;
+      color: var(--on-dark); background: transparent;
+      border: 1px solid rgba(255,255,255,.25); border-radius: 0;
+      padding: 8px 14px; cursor: pointer;
+    }
+    .chip:hover { border-color: var(--on-dark); }
+
+    .chat-input-row { display: flex; gap: var(--xs); padding: var(--md) var(--lg) var(--lg); border-top: 1px solid rgba(255,255,255,.08); }
+    .chat-input {
+      flex: 1; height: 48px; padding: 0 var(--md);
+      background: var(--surface-dark); color: var(--on-dark);
+      border: 1px solid rgba(255,255,255,.2); border-radius: 0;
+      font-family: var(--font); font-size: 14px; font-weight: 300;
+    }
+    .chat-input::placeholder { color: var(--muted-soft); }
+    .chat-input:focus { outline: none; border-color: var(--on-dark); }
+    .send-btn { width: 48px; height: 48px; flex: 0 0 48px; padding: 0; font-size: 18px; }
+
+    /* ===================== 섹션 공통 ===================== */
+    .section { padding: var(--section) 0; }
+    .section-soft { background: var(--surface-soft); }
+    .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: var(--md); }
+    .section h2 { font-size: 44px; margin-bottom: var(--lg); }
+    .lead { font-size: 18px; font-weight: 300; color: var(--body-strong); max-width: 720px; }
+
+    /* ===================== 도움말 카드 (4-up) ===================== */
+    .help-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--xl); margin-top: var(--xxl); }
+    .help-card { background: var(--canvas); padding: var(--lg); }
+    .help-card .plate {
+      background: var(--surface-card); aspect-ratio: 4 / 3;
+      display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: var(--lg);
+    }
+    .help-card h3 { font-size: 18px; margin-bottom: var(--xs); }
+    .help-card p { font-size: 14px; font-weight: 300; color: var(--body); }
+
+    /* ===================== 이용 방법 (3 스텝) ===================== */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--xl); margin-top: var(--xxl); }
+    .step { border-top: 3px solid var(--primary); padding-top: var(--md); }
+    .step .num { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: var(--xs); }
+    .step h3 { font-size: 18px; margin-bottom: var(--xs); }
+    .step p { font-size: 15px; font-weight: 300; color: var(--body); }
+
+    /* ===================== CTA 밴드 (진한 네이비) ===================== */
+    .cta-band { background: var(--surface-dark); color: var(--on-dark); padding: var(--section) 0; text-align: center; }
+    .cta-band h2 { color: var(--on-dark); font-size: 32px; margin-bottom: var(--lg); }
+    .cta-band p { color: var(--on-dark-soft); font-weight: 300; max-width: 560px; margin: 0 auto var(--xl); }
+
+    /* ===================== 푸터 ===================== */
+    footer { background: var(--surface-soft); color: var(--body); padding: 64px 0 var(--xl); }
+    .footer-cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--xl); margin-bottom: var(--xxl); }
+    .footer-cols h4 { font-size: 16px; margin-bottom: var(--md); color: var(--ink); }
+    .footer-cols .about p { font-size: 14px; font-weight: 300; color: var(--muted); max-width: 320px; }
+    .footer-cols ul { list-style: none; }
+    .footer-cols li { margin-bottom: var(--xs); }
+    .footer-cols a { font-size: 14px; font-weight: 300; color: var(--muted); }
+    .footer-cols a:hover { color: var(--ink); }
+    .copyright { border-top: 1px solid var(--hairline); padding-top: var(--lg); font-size: 14px; font-weight: 300; color: var(--muted); }
+
+    /* ===================== 문의/신청 폼 · 목록 (Supabase) ===================== */
+    .inquiry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--xxl); margin-top: var(--xxl); align-items: start; }
+    .form-field { margin-bottom: var(--lg); }
+    .form-field label {
+      display: block; font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--ink); margin-bottom: var(--xs);
+    }
+    .text-input, .textarea-input {
+      width: 100%; background: var(--canvas); color: var(--ink);
+      border: 1px solid var(--hairline); border-radius: 0;
+      font-family: var(--font); font-size: 16px; font-weight: 300; padding: 14px var(--md);
+    }
+    .text-input { height: 48px; }
+    .textarea-input { min-height: 140px; resize: vertical; line-height: 1.55; }
+    .text-input:focus, .textarea-input:focus { outline: none; border-color: var(--ink); }
+    .btn:disabled { opacity: .6; cursor: default; }
+    .form-msg { font-size: 14px; margin-top: var(--sm); min-height: 20px; }
+    .form-msg.success { color: var(--success); }
+    .form-msg.error { color: var(--error); }
+
+    .list-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: var(--md); }
+    .list-count { color: var(--muted); font-weight: 400; font-size: 14px; }
+    .inquiry-list { border-top: 1px solid var(--hairline); max-height: 520px; overflow-y: auto; }
+    .inquiry-item { padding: var(--md) 0; border-bottom: 1px solid var(--hairline); }
+    .inquiry-item .top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--md); margin-bottom: 6px; }
+    .inquiry-item .name { font-size: 16px; font-weight: 700; color: var(--ink); }
+    .inquiry-item .time { font-size: 12px; font-weight: 400; letter-spacing: .5px; color: var(--muted); white-space: nowrap; }
+    .inquiry-item .body { font-size: 15px; font-weight: 300; color: var(--body); white-space: pre-wrap; word-break: break-word; }
+    .list-loading, .list-empty { padding: var(--lg) 0; color: var(--muted); font-size: 14px; }
+
+    /* ===================== 반응형 ===================== */
+    @media (max-width: 1024px) {
+      .help-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .wrap { padding-left: var(--lg); padding-right: var(--lg); }
+      .hamburger { display: block; }
+      .nav-menu, .nav-right { display: none; }
+      .nav-menu.open {
+        display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0;
+        background: var(--canvas); border-bottom: 1px solid var(--hairline); padding: var(--lg) var(--lg) var(--xl); gap: var(--md);
+      }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-dark h1 { font-size: 38px; }
+      .section h2 { font-size: 30px; }
+      .help-grid, .steps { grid-template-columns: 1fr; }
+      .footer-cols { grid-template-columns: 1fr; gap: var(--lg); }
+      .inquiry-grid { grid-template-columns: 1fr; gap: var(--xl); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== 상단 내비게이션 ===================== -->
+  <nav class="top-nav">
+    <div class="wrap">
+      <a class="brand" href="#top">
+        <!-- 실제 로고에서 아이콘(파란 사각형+초록 잎)만 잘라서 표시 -->
+        <span class="logo-icon"><img src="logo_main.png" alt="푸른파트너자산운용 로고" /></span>
+        <span class="brand-text">푸른파트너자산운용</span>
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#chat">HR 챗봇</a></li>
+        <li><a href="#help">도움 주제</a></li>
+        <li><a href="#how">이용 방법</a></li>
+        <li><a href="#inquiry">문의</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="#chat" class="btn btn-primary" style="height:40px;">대화 시작하기</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">☰</button>
+    </div>
+  </nav>
+
+  <!-- ===================== 히어로 + 채팅 패널 ===================== -->
+  <header class="hero-dark" id="top">
+    <div class="wrap">
+      <div class="hero-grid">
+
+        <div>
+          <img class="hero-logo" src="logo_main.png" alt="푸른파트너자산운용" />
+          <p class="eyebrow-light">푸른과 함께 하는 인재 · HR 챗봇</p>
+          <h1>입사를<br />환영합니다.</h1>
+          <p class="sub">첫 출근부터 급여·복지·휴가·사내 규정까지. 궁금한 것은 무엇이든 편하게 물어보세요. HR 챗봇이 24시간 안내해 드립니다.</p>
+          <a href="#chat" class="btn btn-primary">지금 물어보기</a>
+        </div>
+
+        <!-- 채팅 패널 -->
+        <div class="chat-panel" id="chat">
+          <div class="chat-head">
+            <span class="dot"></span>
+            <div>
+              <div class="title">HR 챗봇</div>
+              <div class="status">온라인 · 보통 몇 초 안에 답변</div>
+            </div>
+          </div>
+
+          <div class="chat-log" id="chatLog">
+            <div class="msg bot">안녕하세요! 푸른과 함께 하는 인재 여러분, 입사를 진심으로 환영합니다. 무엇을 도와드릴까요?</div>
+          </div>
+
+          <div class="chips" id="chips">
+            <button class="chip">연차는 어떻게 신청하나요?</button>
+            <button class="chip">급여일은 언제인가요?</button>
+            <button class="chip">복지 제도가 궁금해요</button>
+            <button class="chip">사내 규정은 어디서 보나요?</button>
+          </div>
+
+          <form class="chat-input-row" id="chatForm">
+            <input class="chat-input" id="chatInput" type="text" placeholder="질문을 입력하세요..." autocomplete="off" />
+            <button class="btn btn-primary send-btn" type="submit" aria-label="보내기">›</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== 도움 주제 (밝은 캔버스) ===================== -->
+  <section class="section" id="help">
+    <div class="wrap">
+      <p class="eyebrow">도움 주제</p>
+      <h2>무엇을 도와드릴까요?</h2>
+      <p class="lead">푸른과 함께 하는 인재가 자주 궁금해하는 주제들을 모았습니다. 아래 주제 외에도 무엇이든 챗봇에게 물어보세요.</p>
+      <div class="help-grid">
+        <div class="help-card">
+          <div class="plate">🧭</div>
+          <h3>온보딩 안내</h3>
+          <p>첫 출근 준비물, 사내 계정 발급, 오리엔테이션 일정을 안내합니다.</p>
+        </div>
+        <div class="help-card">
+          <div class="plate">💰</div>
+          <h3>급여 · 복지</h3>
+          <p>급여일, 4대 보험, 복지 포인트, 경조사 지원 등을 확인하세요.</p>
+        </div>
+        <div class="help-card">
+          <div class="plate">📅</div>
+          <h3>휴가 · 근태</h3>
+          <p>연차 신청 방법, 근무 시간, 재택근무 규정을 알려드립니다.</p>
+        </div>
+        <div class="help-card">
+          <div class="plate">📋</div>
+          <h3>사내 규정</h3>
+          <p>취업규칙, 보안 지침, 각종 신청 양식의 위치를 안내합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 이용 방법 (연회색) ===================== -->
+  <section class="section section-soft" id="how">
+    <div class="wrap">
+      <p class="eyebrow">이용 방법</p>
+      <h2>이렇게 이용하세요</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">01</div>
+          <h3>질문 입력</h3>
+          <p>위 채팅창에 궁금한 내용을 평소 말하듯 편하게 입력합니다.</p>
+        </div>
+        <div class="step">
+          <div class="num">02</div>
+          <h3>즉시 답변</h3>
+          <p>챗봇이 사내 규정과 자료를 바탕으로 바로 답변해 드립니다.</p>
+        </div>
+        <div class="step">
+          <div class="num">03</div>
+          <h3>담당자 연결</h3>
+          <p>더 자세한 확인이 필요하면 HR 담당자에게 연결해 드립니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 문의 · 신청 (Supabase 연동) ===================== -->
+  <section class="section" id="inquiry">
+    <div class="wrap">
+      <p class="eyebrow">문의 · 신청</p>
+      <h2>문의와 요청을 남겨주세요</h2>
+      <p class="lead">챗봇으로 해결되지 않은 궁금증이나 필요한 요청(자료·서류·면담 등)을 남겨주시면, HR팀이 확인 후 순서대로 도와드립니다.</p>
+
+      <div class="inquiry-grid">
+        <!-- 왼쪽: 문의 폼 -->
+        <form id="inquiryForm" novalidate>
+          <div class="form-field">
+            <label for="nameInput">이름</label>
+            <input class="text-input" id="nameInput" type="text" placeholder="이름을 입력하세요" maxlength="50" />
+          </div>
+          <div class="form-field">
+            <label for="messageInput">문의 · 요청 내용</label>
+            <textarea class="textarea-input" id="messageInput" placeholder="문의하실 내용이나 요청 사항을 자세히 적어주세요." maxlength="1000"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit" id="submitBtn">문의 남기기</button>
+          <p class="form-msg" id="formMsg"></p>
+        </form>
+
+        <!-- 오른쪽: 접수된 문의 목록 (최신순) -->
+        <div>
+          <h3 class="list-title">접수된 문의 <span class="list-count" id="listCount"></span></h3>
+          <div class="inquiry-list" id="inquiryList">
+            <p class="list-loading">불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA 밴드 (진한 네이비) ===================== -->
+  <section class="cta-band" id="contact">
+    <div class="wrap">
+      <h2>아직 궁금한 점이 있나요?</h2>
+      <p>챗봇으로 해결되지 않는 문의는 HR팀이 직접 도와드립니다. 편하게 연락 주세요.</p>
+      <a href="#inquiry" class="btn btn-on-dark">문의 · 신청 남기기</a>
+    </div>
+  </section>
+
+  <!-- ===================== 푸터 ===================== -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-cols">
+        <div class="about">
+          <h4>푸른파트너자산운용</h4>
+          <p>푸른과 함께 하는 인재가 빠르게 적응하고 회사와 함께 성장할 수 있도록, HR 챗봇으로 온보딩을 돕습니다.</p>
+        </div>
+        <div>
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="#chat">HR 챗봇</a></li>
+            <li><a href="#help">도움 주제</a></li>
+            <li><a href="#how">이용 방법</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>주요 주제</h4>
+          <ul>
+            <li><a href="#help">온보딩 안내</a></li>
+            <li><a href="#help">급여 · 복지</a></li>
+            <li><a href="#help">휴가 · 근태</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>문의</h4>
+          <ul>
+            <li><a href="mailto:prjjh@prpt.co.kr">HR팀 이메일</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2026 푸른파트너자산운용. 푸른과 함께 하는 인재 온보딩 HR 챗봇.</div>
+    </div>
+  </footer>
+
+  <!-- ===================== 채팅 동작 (임시) =====================
+       지금은 실제 AI 없이, 입력을 받으면 안내 메시지를 보여주는 "미리보기" 단계입니다.
+       4주차에 Claude API(/api)를 연결하면 아래 getBotReply 부분만 실제 AI 호출로 바꾸면 됩니다.
+  -->
+  <script>
+    // --- 모바일 메뉴 열고 닫기 ---
+    var hamburger = document.getElementById('hamburger');
+    var navMenu = document.getElementById('navMenu');
+    hamburger.addEventListener('click', function () { navMenu.classList.toggle('open'); });
+    navMenu.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') navMenu.classList.remove('open');
+    });
+
+    // --- 채팅 요소 ---
+    var chatLog = document.getElementById('chatLog');
+    var chatForm = document.getElementById('chatForm');
+    var chatInput = document.getElementById('chatInput');
+    var chips = document.getElementById('chips');
+
+    // 화면에 말풍선 추가
+    function addMessage(text, who) {
+      var div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      chatLog.appendChild(div);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // 임시 답변 (4주차에 실제 AI 답변으로 교체 예정)
+    function getBotReply(question) {
+      return '좋은 질문이에요! "' + question + '" 에 대한 실제 답변 기능은 곧(4주차) 추가됩니다. '
+           + '준비가 끝나면 사내 규정을 바탕으로 정확하게 답해 드릴게요. 조금만 기다려 주세요!';
+    }
+
+    // 질문 보내기
+    function sendQuestion(text) {
+      var q = (text || '').trim();
+      if (!q) return;
+      addMessage(q, 'user');
+      chatInput.value = '';
+      // 살짝 지연을 줘서 답변이 오는 느낌을 냅니다.
+      setTimeout(function () { addMessage(getBotReply(q), 'bot'); }, 500);
+    }
+
+    // 입력창 제출
+    chatForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      sendQuestion(chatInput.value);
+    });
+
+    // 예시 질문 칩 클릭
+    chips.addEventListener('click', function (e) {
+      if (e.target.classList.contains('chip')) {
+        sendQuestion(e.target.textContent);
+      }
+    });
+
+    // ===================== Supabase 문의/신청 =====================
+    // 공개용 key(anon/publishable)는 브라우저에 넣어 쓰도록 설계된 키라 그대로 두어도 안전합니다.
+    // 실제 데이터 보호는 Supabase의 RLS(접근 정책)가 담당합니다.
+    var SUPABASE_URL = 'https://cihbapsffkmaavziiamz.supabase.co';   // /rest/v1 경로는 뺀 기본 주소
+    var SUPABASE_KEY = 'sb_publishable_WbL01ZNc1zJmvSyElMNVpg_9-QTL8sC';
+    var INQUIRIES_ENDPOINT = SUPABASE_URL + '/rest/v1/inquiries';
+    var SB_HEADERS = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    };
+
+    var inquiryForm = document.getElementById('inquiryForm');
+    var nameInput = document.getElementById('nameInput');
+    var messageInput = document.getElementById('messageInput');
+    var submitBtn = document.getElementById('submitBtn');
+    var formMsg = document.getElementById('formMsg');
+    var inquiryList = document.getElementById('inquiryList');
+    var listCount = document.getElementById('listCount');
+
+    // 날짜를 보기 좋게 (예: 2026년 8월 19일 오후 3:24)
+    function formatDate(ts) {
+      if (!ts) return '';
+      var d = new Date(ts);
+      if (isNaN(d.getTime())) return '';
+      try {
+        return d.toLocaleString('ko-KR', {
+          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+      } catch (e) { return d.toLocaleString(); }
+    }
+
+    // 접수 목록 불러오기 (최신순)
+    function loadInquiries() {
+      inquiryList.innerHTML = '<p class="list-loading">불러오는 중...</p>';
+      fetch(INQUIRIES_ENDPOINT + '?select=name,message,created_at&order=created_at.desc&limit=50', { headers: SB_HEADERS })
+        .then(function (res) {
+          if (!res.ok) throw new Error('목록을 불러오지 못했습니다.');
+          return res.json();
+        })
+        .then(function (rows) { renderInquiries(rows); })
+        .catch(function () {
+          inquiryList.innerHTML = '';
+          var p = document.createElement('p');
+          p.className = 'list-empty';
+          p.textContent = '목록을 불러오는 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요.';
+          inquiryList.appendChild(p);
+        });
+    }
+
+    // 목록 그리기 (사용자 입력이므로 textContent로 안전하게 표시)
+    function renderInquiries(rows) {
+      inquiryList.innerHTML = '';
+      if (listCount) listCount.textContent = (rows && rows.length) ? '(' + rows.length + '건)' : '';
+      if (!rows || rows.length === 0) {
+        var empty = document.createElement('p');
+        empty.className = 'list-empty';
+        empty.textContent = '아직 접수된 문의가 없어요. 첫 문의를 남겨보세요!';
+        inquiryList.appendChild(empty);
+        return;
+      }
+      rows.forEach(function (row) {
+        var item = document.createElement('div');
+        item.className = 'inquiry-item';
+
+        var top = document.createElement('div');
+        top.className = 'top';
+        var name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = row.name || '익명';
+        var time = document.createElement('span');
+        time.className = 'time';
+        time.textContent = formatDate(row.created_at);
+        top.appendChild(name);
+        top.appendChild(time);
+
+        var body = document.createElement('div');
+        body.className = 'body';
+        body.textContent = row.message || '';
+
+        item.appendChild(top);
+        item.appendChild(body);
+        inquiryList.appendChild(item);
+      });
+    }
+
+    // 폼 제출 -> Supabase에 저장
+    inquiryForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = nameInput.value.trim();
+      var message = messageInput.value.trim();
+      formMsg.className = 'form-msg';
+      formMsg.textContent = '';
+
+      if (!name || !message) {
+        formMsg.className = 'form-msg error';
+        formMsg.textContent = '이름과 내용을 모두 입력해 주세요.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      var originalLabel = submitBtn.textContent;
+      submitBtn.textContent = '전송 중...';
+
+      fetch(INQUIRIES_ENDPOINT, {
+        method: 'POST',
+        headers: Object.assign({}, SB_HEADERS, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ name: name, message: message })
+      })
+        .then(function (res) {
+          if (!res.ok) return res.text().then(function (t) { throw new Error(t || '전송 실패'); });
+        })
+        .then(function () {
+          formMsg.className = 'form-msg success';
+          formMsg.textContent = '문의가 정상적으로 접수되었어요. 감사합니다!';
+          inquiryForm.reset();
+          loadInquiries();
+        })
+        .catch(function () {
+          formMsg.className = 'form-msg error';
+          formMsg.textContent = '전송 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요.';
+        })
+        .then(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+        });
+    });
+
+    // 페이지가 열리면 접수 목록을 바로 불러옵니다.
+    loadInquiries();
+  </script>
+
+</body>
+</html>
