@@ -254,6 +254,18 @@
       .help-grid, .steps { grid-template-columns: 1fr; }
       .footer-cols { grid-template-columns: 1fr; gap: var(--lg); }
       .inquiry-grid { grid-template-columns: 1fr; gap: var(--xl); }
+
+      /* 모바일 여백 축소 (전체적으로 화면에 맞게) */
+      .hero-dark, .section, .cta-band { padding-top: var(--xxl); padding-bottom: var(--xxl); }
+      .hero-grid { gap: var(--xl); }
+
+      /* 채팅창: 고정 높이 해제 → 내용에 맞춰 늘어나게 (입력창 잘림 방지) */
+      .chat-panel { height: auto; }
+      .chat-log { height: 220px; flex: 0 0 auto; }
+
+      /* 예시 질문 버튼: 세로로 쌓이지 않고 한 줄 가로 스크롤 */
+      .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .chip { flex: 0 0 auto; white-space: nowrap; }
     }
   </style>
 </head>
