@@ -20,3 +20,6 @@ Desktop.ini
 # 학습 데이터 (사내 정보 · 저장소 노출 금지)
 training_data/*
 !training_data/README.md
+
+# Claude Code MCP 로컬 설정 (환경별로 다를 수 있음)
+.mcp.json
