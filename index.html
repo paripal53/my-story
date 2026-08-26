@@ -104,7 +104,10 @@
     .hamburger { display: none; width: 44px; height: 44px; border: none; background: transparent; cursor: pointer; font-size: 22px; color: var(--ink); }
 
     /* ===================== 히어로 (진한 네이비) ===================== */
-    .hero-dark { background: var(--surface-dark); color: var(--on-dark); padding: var(--section) 0; }
+    .hero-dark {
+      background: linear-gradient(rgba(26,33,41,0.86), rgba(26,33,41,0.94)), url("hero.jpg") center/cover no-repeat;
+      color: var(--on-dark); padding: var(--section) 0;
+    }
     .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--xxl); align-items: center; }
     .eyebrow-light {
       font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
@@ -164,8 +167,9 @@
     .help-card { background: var(--canvas); padding: var(--lg); }
     .help-card .plate {
       background: var(--surface-card); aspect-ratio: 4 / 3;
-      display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: var(--lg);
+      overflow: hidden; margin-bottom: var(--lg);
     }
+    .help-card .plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .help-card h3 { font-size: 18px; margin-bottom: var(--xs); }
     .help-card p { font-size: 14px; font-weight: 300; color: var(--body); }
 
@@ -177,7 +181,10 @@
     .step p { font-size: 15px; font-weight: 300; color: var(--body); }
 
     /* ===================== CTA 밴드 (진한 네이비) ===================== */
-    .cta-band { background: var(--surface-dark); color: var(--on-dark); padding: var(--section) 0; text-align: center; }
+    .cta-band {
+      background: linear-gradient(rgba(26,33,41,0.80), rgba(26,33,41,0.90)), url("cta.jpg") center/cover no-repeat;
+      color: var(--on-dark); padding: var(--section) 0; text-align: center;
+    }
     .cta-band h2 { color: var(--on-dark); font-size: 32px; margin-bottom: var(--lg); }
     .cta-band p { color: var(--on-dark-soft); font-weight: 300; max-width: 560px; margin: 0 auto var(--xl); }
 
@@ -322,22 +329,22 @@
       <p class="lead">푸른과 함께 하는 인재가 자주 궁금해하는 주제들을 모았습니다. 아래 주제 외에도 무엇이든 챗봇에게 물어보세요.</p>
       <div class="help-grid">
         <div class="help-card">
-          <div class="plate">🧭</div>
+          <div class="plate"><img src="card-onboarding.jpg" alt="온보딩 안내" loading="lazy" /></div>
           <h3>온보딩 안내</h3>
           <p>첫 출근 준비물, 사내 계정 발급, 오리엔테이션 일정을 안내합니다.</p>
         </div>
         <div class="help-card">
-          <div class="plate">💰</div>
+          <div class="plate"><img src="card-welfare.jpg" alt="급여 · 복지" loading="lazy" /></div>
           <h3>급여 · 복지</h3>
           <p>급여일, 4대 보험, 복지 포인트, 경조사 지원 등을 확인하세요.</p>
         </div>
         <div class="help-card">
-          <div class="plate">📅</div>
+          <div class="plate"><img src="card-leave.jpg" alt="휴가 · 근태" loading="lazy" /></div>
           <h3>휴가 · 근태</h3>
           <p>연차 신청 방법, 근무 시간, 재택근무 규정을 알려드립니다.</p>
         </div>
         <div class="help-card">
-          <div class="plate">📋</div>
+          <div class="plate"><img src="card-rules.jpg" alt="사내 규정" loading="lazy" /></div>
           <h3>사내 규정</h3>
           <p>취업규칙, 보안 지침, 각종 신청 양식의 위치를 안내합니다.</p>
         </div>
