@@ -16,3 +16,7 @@ Desktop.ini
 *.xlsx
 *.ppt
 *.pptx
+
+# 학습 데이터 (사내 정보 · 저장소 노출 금지)
+training_data/*
+!training_data/README.md
