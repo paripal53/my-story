@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>푸른파트너자산운용 · HR 챗봇</title>
+  <title>푸른파트너스자산운용 · HR 챗봇</title>
 
   <!-- BMW Type Next Latin은 BMW 전용 폰트라 공개되어 있지 않습니다.
        디자인 가이드가 권장한 대체 폰트 'Inter'(700/300)를 불러옵니다.
@@ -62,6 +62,8 @@
       line-height: 1.55;
       letter-spacing: 0;
       -webkit-font-smoothing: antialiased;
+      word-break: keep-all;        /* 한글을 단어 단위로 줄바꿈 (어절이 중간에 안 잘림) */
+      overflow-wrap: break-word;   /* 아주 긴 단어는 필요 시 줄바꿈 */
     }
     h1, h2, h3, h4 { font-weight: 700; color: var(--ink); line-height: 1.1; }
     a { color: inherit; text-decoration: none; }
@@ -93,7 +95,7 @@
       background: var(--canvas); border-bottom: 1px solid var(--hairline);
     }
     .top-nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; }
-    .brand { display: flex; align-items: center; gap: var(--sm); font-weight: 700; letter-spacing: .5px; color: var(--ink); }
+    .brand { display: flex; align-items: center; gap: var(--sm); font-weight: 700; font-size: 20px; letter-spacing: .3px; color: var(--ink); white-space: nowrap; }
     /* 로고: 실제 이미지에서 아이콘 부분만 잘라 보여줌 (흰 글자는 흰 배경에서 안 보이므로) */
     .logo-icon { height: 40px; width: 56px; overflow: hidden; display: block; flex: 0 0 auto; }
     .logo-icon img { height: 40px; width: auto; display: block; }
@@ -238,6 +240,9 @@
     @media (max-width: 768px) {
       .wrap { padding-left: var(--lg); padding-right: var(--lg); }
       .hamburger { display: block; }
+      .brand { font-size: 16px; gap: var(--xs); }
+      .logo-icon { width: 48px; height: 34px; }
+      .logo-icon img { height: 34px; }
       .nav-menu, .nav-right { display: none; }
       .nav-menu.open {
         display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0;
@@ -259,8 +264,8 @@
     <div class="wrap">
       <a class="brand" href="#top">
         <!-- 실제 로고에서 아이콘(파란 사각형+초록 잎)만 잘라서 표시 -->
-        <span class="logo-icon"><img src="logo_main.png" alt="푸른파트너자산운용 로고" /></span>
-        <span class="brand-text">푸른파트너자산운용</span>
+        <span class="logo-icon"><img src="logo_main.png" alt="푸른파트너스자산운용 로고" /></span>
+        <span class="brand-text">푸른파트너스자산운용</span>
       </a>
       <ul class="nav-menu" id="navMenu">
         <li><a href="#chat">HR 챗봇</a></li>
@@ -281,7 +286,7 @@
       <div class="hero-grid">
 
         <div>
-          <img class="hero-logo" src="logo_main.png" alt="푸른파트너자산운용" />
+          <img class="hero-logo" src="logo_main.png" alt="푸른파트너스자산운용" />
           <p class="eyebrow-light">푸른과 함께 하는 인재 · HR 챗봇</p>
           <h1>입사를<br />환영합니다.</h1>
           <p class="sub">첫 출근부터 급여·복지·휴가·사내 규정까지. 궁금한 것은 무엇이든 편하게 물어보세요. HR 챗봇이 24시간 안내해 드립니다.</p>
@@ -426,7 +431,7 @@
     <div class="wrap">
       <div class="footer-cols">
         <div class="about">
-          <h4>푸른파트너자산운용</h4>
+          <h4>푸른파트너스자산운용</h4>
           <p>푸른과 함께 하는 인재가 빠르게 적응하고 회사와 함께 성장할 수 있도록, HR 챗봇으로 온보딩을 돕습니다.</p>
         </div>
         <div>
@@ -452,7 +457,7 @@
           </ul>
         </div>
       </div>
-      <div class="copyright">© 2026 푸른파트너자산운용. 푸른과 함께 하는 인재 온보딩 HR 챗봇.</div>
+      <div class="copyright">© 2026 푸른파트너스자산운용. 푸른과 함께 하는 인재 온보딩 HR 챗봇.</div>
     </div>
   </footer>
 
