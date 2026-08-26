@@ -61,11 +61,12 @@ const SYSTEM_PROMPT = `당신은 주식회사 푸른파트너스자산운용의 
 · 법인 인감·등기사항 증명서: 즉시 (다량 3일)
 
 [답변 원칙]
-1. 위 정보에 근거해 정확하게 답변하세요. 위에 없는 정보는 추측하지 말고 "정확한 안내를 위해 경영지원부(HR팀)에 문의해 주세요"라고 안내하세요.
+1. 위 정보와 아래 [참고 지식]에 근거해 정확하게 답변하세요. 위에 없는 정보는 추측하지 말고 "정확한 안내를 위해 경영지원부(HR팀)에 문의해 주세요"라고 안내하세요.
 2. 답변은 3~5문장 이내로 간결하게, 한국어로 친절하게 응답하세요. 필요하면 목록(·)을 사용해 가독성을 높이세요.
 3. 개인 급여·인사·건강 정보는 절대 요청하거나 저장하지 마세요.
 4. 회사 외부·개인적·잡담 성격의 질문은 정중히 HR 업무 범위로 유도하세요.
-5. 답변 마지막에 관련 규정이 있다면 "(근거: 취업규칙 제○조)" 형태로 짧게 표시하세요. 없으면 표시하지 않아도 괜찮아요.`;
+5. 답변 마지막에 관련 규정이 있다면 "(근거: 취업규칙 제○조)" 형태로 짧게 표시하세요. 없으면 표시하지 않아도 괜찮아요.
+6. [참고 지식]에 나오는 근거(source)를 그대로 인용해 신뢰도를 높이세요.`;
 
 module.exports = async function handler(req, res) {
   // CORS (동일 출처지만 안전상)
@@ -111,6 +112,16 @@ module.exports = async function handler(req, res) {
     }
     messages.push({ role: 'user', content: question });
 
+    // 📚 RAG: 관련 지식 청크를 Supabase에서 검색해 시스템 프롬프트에 추가
+    const knowledge = await searchKnowledge(question).catch(() => []);
+    let systemPrompt = SYSTEM_PROMPT;
+    if (knowledge && knowledge.length > 0) {
+      const knowledgeBlock = knowledge.map((k, i) =>
+        `[${i + 1}] ${k.title}${k.source ? ' (' + k.source + ')' : ''}\n${k.content}`
+      ).join('\n\n');
+      systemPrompt += '\n\n[참고 지식 — 이 질문과 관련해 사내 자료에서 뽑아온 발췌]\n' + knowledgeBlock;
+    }
+
     // Claude Haiku 4.5 호출
     const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -122,7 +133,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5',
         max_tokens: 512,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: messages
       })
     });
@@ -163,10 +174,48 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// 학습용 저장 (관리자가 나중에 검토해 FAQ에 반영 가능)
+// 공용 상수 (Supabase 연결)
+const SUPA_URL = 'https://cihbapsffkmaavziiamz.supabase.co';
+const SUPA_KEY = 'sb_publishable_WbL01ZNc1zJmvSyElMNVpg_9-QTL8sC';
+
+// 📚 지식 청크 검색 (Postgres RPC: search_knowledge)
+// 질문 문자열 전체와 주요 단어들 각각에 대해 유사도 검색을 돌려 상위 결과를 합칩니다.
+async function searchKnowledge(question) {
+  const words = (question.match(/[가-힣a-zA-Z0-9]+/g) || [])
+    .filter(w => w.length >= 2)
+    .slice(0, 5);
+  const queries = [question, ...words];
+
+  const seen = new Map();
+  await Promise.all(queries.map(async (q) => {
+    try {
+      const res = await fetch(SUPA_URL + '/rest/v1/rpc/search_knowledge', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ q: q, max_results: 5 })
+      });
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!Array.isArray(rows)) return;
+      for (const r of rows) {
+        const cur = seen.get(r.id);
+        if (!cur || (r.score || 0) > (cur.score || 0)) seen.set(r.id, r);
+      }
+    } catch (e) { /* 지식 검색은 실패해도 답변은 계속 */ }
+  }));
+
+  const merged = Array.from(seen.values())
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 8);
+  return merged;
+}
+
+// 학습용 저장 (관리자가 나중에 검토해 FAQ 또는 지식 청크에 반영 가능)
 async function logToSupabase(question, answer, model) {
-  const SUPA_URL = 'https://cihbapsffkmaavziiamz.supabase.co';
-  const SUPA_KEY = 'sb_publishable_WbL01ZNc1zJmvSyElMNVpg_9-QTL8sC';
   await fetch(SUPA_URL + '/rest/v1/ai_learning', {
     method: 'POST',
     headers: {
