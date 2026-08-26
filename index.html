@@ -137,6 +137,12 @@
 
     .chat-log { flex: 1; overflow-y: auto; padding: var(--lg); display: flex; flex-direction: column; gap: var(--sm); }
     .msg { max-width: 85%; padding: var(--sm) var(--md); font-size: 14px; font-weight: 300; line-height: 1.55; white-space: pre-line; }
+    /* AI 답변 준비 중 표시 (점 세 개가 튀는 애니메이션) */
+    .msg.msg-typing { display: flex; gap: 5px; align-items: center; padding: 12px 14px; }
+    .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.55); animation: typingBounce 1.3s infinite ease-in-out; }
+    .typing-dot:nth-child(2) { animation-delay: .18s; }
+    .typing-dot:nth-child(3) { animation-delay: .36s; }
+    @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-5px); opacity: 1; } }
     .msg.bot { background: rgba(255,255,255,.06); color: var(--on-dark); align-self: flex-start; }
     .msg.user { background: var(--primary); color: var(--on-primary); align-self: flex-end; }
     /* 답변 하단의 근거 규정 표시 */
@@ -663,7 +669,8 @@
         if (payload.source) {
           var src = document.createElement('div');
           src.className = 'msg-source';
-          src.textContent = '📄 근거 · ' + payload.source;
+          var isAi = /Claude|AI 답변/i.test(payload.source);
+          src.textContent = (isAi ? '🤖 ' : '📄 근거 · ') + payload.source;
           wrap.appendChild(src);
         }
       } else {
@@ -1138,7 +1145,8 @@
 
     // 질문에서 위 FAQ 키워드를 찾아 답변을 고릅니다. 매칭이 여러 개면 가장 긴(구체적인) 키워드가 우선.
     // 같은 항목에 반복 매칭되면 표현을 자연스럽게 변주해서 답변합니다 (사실은 그대로).
-    function getBotReply(question) {
+    // returnNullOnMiss=true 이면 FAQ 매칭 실패 시 null을 돌려줌 (호출자가 AI로 넘길 수 있게)
+    function getBotReply(question, returnNullOnMiss) {
       var q = (question || '').toLowerCase();
       var bestIdx = -1, bestLen = 0;
       for (var i = 0; i < FAQ.length; i++) {
@@ -1150,6 +1158,7 @@
         }
       }
       if (bestIdx === -1) {
+        if (returnNullOnMiss) return null;
         // 6가지 답변을 순환하며 매번 다른 표현으로 응답
         var tpl = FALLBACK_TEMPLATES[fallbackShownCount % FALLBACK_TEMPLATES.length];
         fallbackShownCount++;
@@ -1176,14 +1185,83 @@
       return { text: text, source: entry.source || null };
     }
 
+    // 챗 타이핑 인디케이터 (AI 답변 준비 중)
+    function addTypingIndicator() {
+      var wrap = document.createElement('div');
+      wrap.className = 'msg bot msg-typing';
+      wrap.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      chatLog.appendChild(wrap);
+      chatLog.scrollTop = chatLog.scrollHeight;
+      return wrap;
+    }
+    function removeTypingIndicator(el) {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    // 최근 대화 문맥 (AI 호출 시 함께 전달, 최대 6턴)
+    var chatHistory = [];
+    function pushHistory(role, content) {
+      chatHistory.push({ role: role, content: content });
+      if (chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+    }
+
     // 질문 보내기
+    //  1) FAQ 매칭 시도 → 있으면 즉시 답변 (빠르고 무료)
+    //  2) 없으면 /api/ask 호출 → Claude Haiku가 실시간 답변
+    //  3) API 실패 시 자연스러운 안내 문구로 폴백
     function sendQuestion(text) {
       var q = (text || '').trim();
       if (!q) return;
       addMessage(q, 'user');
+      pushHistory('user', q);
       chatInput.value = '';
-      // 살짝 지연을 줘서 답변이 오는 느낌을 냅니다.
-      setTimeout(function () { addMessage(getBotReply(q), 'bot'); }, 500);
+
+      // 1) FAQ 매칭
+      var faqReply = getBotReply(q, true);
+      if (faqReply) {
+        setTimeout(function () {
+          addMessage(faqReply, 'bot');
+          pushHistory('assistant', faqReply.text);
+        }, 400);
+        return;
+      }
+
+      // 2) AI 호출
+      var typingEl = addTypingIndicator();
+      fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: q,
+          history: chatHistory.slice(-6, -1)   // 방금 넣은 사용자 발화는 이미 question에 있음
+        })
+      })
+        .then(function (res) {
+          return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        })
+        .then(function (result) {
+          removeTypingIndicator(typingEl);
+          if (result.ok && result.data && result.data.answer) {
+            var payload = {
+              text: result.data.answer,
+              source: result.data.source || 'AI 답변 (Claude Haiku)'
+            };
+            addMessage(payload, 'bot');
+            pushHistory('assistant', payload.text);
+          } else {
+            // AI 응답 실패 → 회전형 폴백
+            var fb = getBotReply(q, false);
+            addMessage(fb, 'bot');
+            pushHistory('assistant', fb.text);
+          }
+        })
+        .catch(function () {
+          // 네트워크 오류 등 → 회전형 폴백
+          removeTypingIndicator(typingEl);
+          var fb = getBotReply(q, false);
+          addMessage(fb, 'bot');
+          pushHistory('assistant', fb.text);
+        });
     }
 
     // 입력창 제출
