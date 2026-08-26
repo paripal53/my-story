@@ -234,6 +234,84 @@
     .inquiry-item .body { font-size: 15px; font-weight: 300; color: var(--body); white-space: pre-wrap; word-break: break-word; }
     .list-loading, .list-empty { padding: var(--lg) 0; color: var(--muted); font-size: 14px; }
 
+    /* ===================== 플로팅 챗봇 (런처 + 윈도우) ===================== */
+    .chat-launcher {
+      position: fixed; bottom: 24px; right: 24px; z-index: 100;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--primary); color: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.24), 0 2px 6px rgba(0,0,0,0.12);
+      transition: transform .15s, background .15s;
+    }
+    .chat-launcher:hover { transform: translateY(-2px); }
+    .chat-launcher.open { background: var(--surface-dark); }
+    .chat-launcher .icon-chat { display: block; }
+    .chat-launcher.open .icon-chat { display: none; }
+    .chat-launcher .icon-close { display: none; font-size: 26px; line-height: 1; }
+    .chat-launcher.open .icon-close { display: block; }
+
+    .chat-window {
+      position: fixed; bottom: 100px; right: 24px; z-index: 99;
+      width: 400px; max-width: calc(100vw - 48px);
+      height: 560px; max-height: calc(100vh - 140px);
+      display: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .chat-window.open { display: block; animation: chatIn .18s ease; }
+    @keyframes chatIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .chat-window .chat-panel { height: 100%; }
+
+    /* 챗봇 헤더에 닫기 버튼 자리 확보 */
+    .chat-head { justify-content: space-between; }
+    .chat-head-info { display: flex; align-items: center; gap: var(--sm); min-width: 0; }
+    .chat-close {
+      background: transparent; border: none; color: var(--on-dark);
+      font-size: 24px; line-height: 1; cursor: pointer; padding: 4px 10px;
+      opacity: .7;
+    }
+    .chat-close:hover { opacity: 1; }
+
+    /* ===================== 히어로 미리보기 카드 (정적 데모) ===================== */
+    .hero-preview {
+      background: var(--surface-dark-elevated);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: var(--lg);
+      min-width: 0;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s;
+    }
+    .hero-preview:hover { border-color: rgba(255,255,255,0.28); transform: translateY(-2px); }
+    .hero-preview .preview-head {
+      display: flex; align-items: center; gap: var(--sm);
+      padding-bottom: var(--md); margin-bottom: var(--md);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hero-preview .preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex: 0 0 auto; }
+    .hero-preview .preview-title { font-size: 14px; font-weight: 700; color: var(--on-dark); }
+    .hero-preview .preview-status { font-size: 12px; font-weight: 400; color: var(--on-dark-soft); letter-spacing: .3px; }
+    .hero-preview .preview-body { display: flex; flex-direction: column; gap: var(--sm); margin-bottom: var(--md); }
+    .hero-preview .preview-msg {
+      max-width: 85%; padding: var(--sm) var(--md); font-size: 14px; font-weight: 300; line-height: 1.5;
+      animation: fadeSlide .4s ease both;
+    }
+    .hero-preview .preview-msg.bot { background: rgba(255,255,255,0.08); color: var(--on-dark); align-self: flex-start; }
+    .hero-preview .preview-msg.user { background: var(--primary); color: var(--on-primary); align-self: flex-end; }
+    .hero-preview .preview-msg:nth-child(1) { animation-delay: .1s; }
+    .hero-preview .preview-msg:nth-child(2) { animation-delay: .9s; }
+    .hero-preview .preview-msg:nth-child(3) { animation-delay: 1.7s; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-preview .preview-cta {
+      font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--primary);
+      padding-top: var(--md); border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .hero-preview .preview-arrow { transition: transform .15s; }
+    .hero-preview:hover .preview-arrow { transform: translateX(4px); }
+
+    /* ===================== 문의 목록 - 프라이버시 (내용 숨김) ===================== */
+    .inquiry-status { font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+
     /* ===================== 반응형 ===================== */
     @media (max-width: 1024px) {
       .help-grid { grid-template-columns: repeat(2, 1fr); }
@@ -267,6 +345,14 @@
       /* 예시 질문 버튼: 세로로 쌓이지 않고 한 줄 가로 스크롤 */
       .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; }
       .chip { flex: 0 0 auto; white-space: nowrap; }
+
+      /* 플로팅 챗봇: 모바일에서는 하단 시트처럼 크게 */
+      .chat-launcher { bottom: 16px; right: 16px; width: 56px; height: 56px; }
+      .chat-window {
+        bottom: 84px; right: 12px; left: 12px;
+        width: auto; max-width: none;
+        height: calc(100vh - 100px); max-height: none;
+      }
     }
   </style>
 </head>
@@ -281,13 +367,12 @@
         <span class="brand-text">푸른파트너스자산운용 HR</span>
       </a>
       <ul class="nav-menu" id="navMenu">
-        <li><a href="#chat">HR 챗봇</a></li>
         <li><a href="#help">도움 주제</a></li>
         <li><a href="#how">이용 방법</a></li>
         <li><a href="#inquiry">문의</a></li>
       </ul>
       <div class="nav-right">
-        <a href="#chat" class="btn btn-primary" style="height:40px;">대화 시작하기</a>
+        <button type="button" class="btn btn-primary" style="height:40px;" data-open-chat>대화 시작하기</button>
       </div>
       <button class="hamburger" id="hamburger" aria-label="메뉴 열기">☰</button>
     </div>
@@ -303,38 +388,23 @@
           <p class="eyebrow-light">푸른과 함께 하는 인재 · HR 챗봇</p>
           <h1>입사를<br />환영합니다.</h1>
           <p class="sub">첫 출근부터 급여·복지·휴가·사내 규정까지. 궁금한 것은 무엇이든 편하게 물어보세요. HR 챗봇이 24시간 안내해 드립니다.</p>
-          <a href="#chat" class="btn btn-primary">지금 물어보기</a>
         </div>
 
-        <!-- 채팅 패널 -->
-        <div class="chat-panel" id="chat">
-          <div class="chat-head">
-            <span class="dot"></span>
+        <!-- 챗봇 미리보기 (정적 데모 · 클릭하면 실제 챗봇이 열림) -->
+        <div class="hero-preview" data-open-chat role="button" tabindex="0" aria-label="HR 챗봇 열기">
+          <div class="preview-head">
+            <span class="preview-dot"></span>
             <div>
-              <div class="title">HR 챗봇</div>
-              <div class="status">온라인 · 보통 몇 초 안에 답변</div>
+              <div class="preview-title">HR 챗봇 미리보기</div>
+              <div class="preview-status">클릭하면 실제 챗봇이 열립니다</div>
             </div>
           </div>
-
-          <div class="chat-log" id="chatLog">
-            <div class="msg bot">안녕하세요! 푸른과 함께 하는 인재 여러분, 입사를 진심으로 환영합니다. 무엇을 도와드릴까요?</div>
+          <div class="preview-body">
+            <div class="preview-msg bot">안녕하세요! 무엇을 도와드릴까요?</div>
+            <div class="preview-msg user">급여일은 언제인가요?</div>
+            <div class="preview-msg bot">급여일은 매월 21일입니다. 21일이 주말·공휴일이면 직전 영업일에 지급돼요.</div>
           </div>
-
-          <div class="chips" id="chips">
-            <button class="chip">급여일은 언제인가요?</button>
-            <button class="chip">연차는 어떻게 신청하나요?</button>
-            <button class="chip">근무 시간은 어떻게 되나요?</button>
-            <button class="chip">복지 제도가 궁금해요</button>
-            <button class="chip">주차장 이용이 가능한가요?</button>
-            <button class="chip">사내 규정은 어디서 보나요?</button>
-            <button class="chip">재직증명서는 어떻게 발급하나요?</button>
-            <button class="chip">임직원 매매 신고는 어떻게 하나요?</button>
-          </div>
-
-          <form class="chat-input-row" id="chatForm">
-            <input class="chat-input" id="chatInput" type="text" placeholder="질문을 입력하세요..." autocomplete="off" />
-            <button class="btn btn-primary send-btn" type="submit" aria-label="보내기">›</button>
-          </form>
+          <div class="preview-cta">챗봇 시작하기 <span class="preview-arrow">›</span></div>
         </div>
 
       </div>
@@ -450,7 +520,6 @@
         <div>
           <h4>바로가기</h4>
           <ul>
-            <li><a href="#chat">HR 챗봇</a></li>
             <li><a href="#help">도움 주제</a></li>
             <li><a href="#how">이용 방법</a></li>
           </ul>
@@ -474,6 +543,49 @@
     </div>
   </footer>
 
+  <!-- ===================== 플로팅 챗봇 (런처 버튼 + 챗 창) ===================== -->
+  <button type="button" class="chat-launcher" id="chatLauncher" aria-label="HR 챗봇 열기" aria-expanded="false">
+    <svg class="icon-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H8l-4 4V5a1 1 0 0 1 1-1z" fill="#fff"/>
+    </svg>
+    <span class="icon-close" aria-hidden="true">×</span>
+  </button>
+
+  <div class="chat-window" id="chatWindow" role="dialog" aria-modal="true" aria-labelledby="chatWinTitle" aria-hidden="true">
+    <div class="chat-panel" id="chat">
+      <div class="chat-head">
+        <div class="chat-head-info">
+          <span class="dot"></span>
+          <div>
+            <div class="title" id="chatWinTitle">HR 챗봇</div>
+            <div class="status">온라인 · 보통 몇 초 안에 답변</div>
+          </div>
+        </div>
+        <button type="button" class="chat-close" id="chatClose" aria-label="채팅 닫기">×</button>
+      </div>
+
+      <div class="chat-log" id="chatLog">
+        <div class="msg bot">안녕하세요! 푸른과 함께 하는 인재 여러분, 입사를 진심으로 환영합니다. 무엇을 도와드릴까요?</div>
+      </div>
+
+      <div class="chips" id="chips">
+        <button class="chip">급여일은 언제인가요?</button>
+        <button class="chip">연차는 어떻게 신청하나요?</button>
+        <button class="chip">근무 시간은 어떻게 되나요?</button>
+        <button class="chip">복지 제도가 궁금해요</button>
+        <button class="chip">주차장 이용이 가능한가요?</button>
+        <button class="chip">사내 규정은 어디서 보나요?</button>
+        <button class="chip">재직증명서는 어떻게 발급하나요?</button>
+        <button class="chip">임직원 매매 신고는 어떻게 하나요?</button>
+      </div>
+
+      <form class="chat-input-row" id="chatForm">
+        <input class="chat-input" id="chatInput" type="text" placeholder="질문을 입력하세요..." autocomplete="off" />
+        <button class="btn btn-primary send-btn" type="submit" aria-label="보내기">›</button>
+      </form>
+    </div>
+  </div>
+
   <!-- ===================== 채팅 동작 (임시) =====================
        지금은 실제 AI 없이, 입력을 받으면 안내 메시지를 보여주는 "미리보기" 단계입니다.
        4주차에 Claude API(/api)를 연결하면 아래 getBotReply 부분만 실제 AI 호출로 바꾸면 됩니다.
@@ -485,6 +597,43 @@
     hamburger.addEventListener('click', function () { navMenu.classList.toggle('open'); });
     navMenu.addEventListener('click', function (e) {
       if (e.target.tagName === 'A') navMenu.classList.remove('open');
+    });
+
+    // --- 플로팅 챗봇 열기/닫기 ---
+    var chatLauncher = document.getElementById('chatLauncher');
+    var chatWindow = document.getElementById('chatWindow');
+    var chatClose = document.getElementById('chatClose');
+    function openChat() {
+      chatWindow.classList.add('open');
+      chatLauncher.classList.add('open');
+      chatWindow.setAttribute('aria-hidden', 'false');
+      chatLauncher.setAttribute('aria-expanded', 'true');
+      setTimeout(function(){ var i = document.getElementById('chatInput'); if (i) i.focus(); }, 100);
+    }
+    function closeChat() {
+      chatWindow.classList.remove('open');
+      chatLauncher.classList.remove('open');
+      chatWindow.setAttribute('aria-hidden', 'true');
+      chatLauncher.setAttribute('aria-expanded', 'false');
+      chatLauncher.focus();
+    }
+    function toggleChat() {
+      if (chatWindow.classList.contains('open')) closeChat(); else openChat();
+    }
+    chatLauncher.addEventListener('click', toggleChat);
+    chatClose.addEventListener('click', closeChat);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && chatWindow.classList.contains('open')) closeChat();
+    });
+    // 챗봇을 여는 모든 요소(nav 버튼, 히어로 미리보기 카드 등)
+    document.querySelectorAll('[data-open-chat]').forEach(function(el){
+      el.addEventListener('click', function(e){ e.preventDefault(); openChat(); });
+      // role=button 요소는 키보드도 지원
+      if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
+        el.addEventListener('keydown', function(e){
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openChat(); }
+        });
+      }
     });
 
     // --- 채팅 요소 ---
@@ -692,10 +841,19 @@
         });
     }
 
-    // 목록 그리기 (사용자 입력이므로 textContent로 안전하게 표시)
+    // 이름 마스킹: 개인정보 보호 — 첫 글자만 노출하고 나머지는 O로 대체
+    function maskName(n) {
+      if (!n) return '익명';
+      n = String(n).trim();
+      if (!n) return '익명';
+      if (n.length === 1) return n + 'O';
+      return n.charAt(0) + 'O'.repeat(Math.min(n.length - 1, 2));
+    }
+
+    // 목록 그리기 (일반 방문자에게는 이름 일부와 접수 일시만 공개)
     function renderInquiries(rows) {
       inquiryList.innerHTML = '';
-      if (listCount) listCount.textContent = (rows && rows.length) ? '(' + rows.length + '건)' : '';
+      if (listCount) listCount.textContent = (rows && rows.length) ? '(' + rows.length + '건 접수)' : '';
       if (!rows || rows.length === 0) {
         var empty = document.createElement('p');
         empty.className = 'list-empty';
@@ -711,19 +869,20 @@
         top.className = 'top';
         var name = document.createElement('span');
         name.className = 'name';
-        name.textContent = row.name || '익명';
+        name.textContent = maskName(row.name) + ' 님';
         var time = document.createElement('span');
         time.className = 'time';
         time.textContent = formatDate(row.created_at);
         top.appendChild(name);
         top.appendChild(time);
 
-        var body = document.createElement('div');
-        body.className = 'body';
-        body.textContent = row.message || '';
+        // 문의 내용은 개인정보 보호를 위해 화면에 표시하지 않음 (HR팀만 열람)
+        var status = document.createElement('div');
+        status.className = 'inquiry-status';
+        status.textContent = '접수 완료 · HR팀 확인 중';
 
         item.appendChild(top);
-        item.appendChild(body);
+        item.appendChild(status);
         inquiryList.appendChild(item);
       });
     }
