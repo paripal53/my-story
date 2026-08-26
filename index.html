@@ -1120,6 +1120,22 @@
     // 세션 내 FAQ 항목별 노출 횟수 (반복 질문 시 다른 표현으로 답하도록 회전)
     var faqShownCount = {};
 
+    // 매칭 실패 시 자연스러운 다양한 답변 (기계적으로 같은 문구가 반복되지 않도록)
+    // 일부 응답은 사용자의 질문을 인용해 더 대화적으로 느껴지도록 구성
+    function truncateQuestion(q) {
+      q = (q || '').trim().replace(/[?!.]+$/, '');
+      return q.length > 40 ? q.slice(0, 40) + '…' : q;
+    }
+    var FALLBACK_TEMPLATES = [
+      function(q){ return '음, 이 부분은 제가 아직 정확히 안내드리기 어려운 내용이에요. 아래 "문의 · 신청"에 남겨주시면 HR팀이 확인 후 답변드릴게요.'; },
+      function(q){ return '「' + truncateQuestion(q) + '」에 대한 답변은 아직 준비되지 않았어요. 경영지원부(HR팀)에 직접 문의해 주시면 더 정확한 안내를 받으실 수 있습니다.'; },
+      function(q){ return '이 주제는 제가 답변을 준비하지 못한 영역이네요. 아래 문의 폼에 자세히 남겨주시면 담당자가 확인해서 알려드립니다.'; },
+      function(q){ return '아쉽지만 이 질문에는 명확한 답을 드리기 어려워요. "복지", "연차", "급여", "증명서" 등 다른 주제로 물어보셔도 좋고, 문의 폼에 남겨주셔도 됩니다.'; },
+      function(q){ return '「' + truncateQuestion(q) + '」 — 아직 제가 학습하지 못한 내용이네요. 조금 다른 표현으로 여쭤보시거나, HR팀에 직접 문의해 주세요.'; },
+      function(q){ return '말씀하신 내용에 대해서는 아직 확정된 답변을 준비하지 못했어요. 아래 "문의 · 신청"에 자세히 남겨주시면 HR팀이 직접 답변드립니다.'; }
+    ];
+    var fallbackShownCount = 0;
+
     // 질문에서 위 FAQ 키워드를 찾아 답변을 고릅니다. 매칭이 여러 개면 가장 긴(구체적인) 키워드가 우선.
     // 같은 항목에 반복 매칭되면 표현을 자연스럽게 변주해서 답변합니다 (사실은 그대로).
     function getBotReply(question) {
@@ -1134,10 +1150,10 @@
         }
       }
       if (bestIdx === -1) {
-        return {
-          text: '아직 제가 답변을 준비하지 못한 질문이에요. 아래 "문의 · 신청"에 남겨주시면 HR팀이 직접 답변드릴게요. 감사합니다!',
-          source: null
-        };
+        // 6가지 답변을 순환하며 매번 다른 표현으로 응답
+        var tpl = FALLBACK_TEMPLATES[fallbackShownCount % FALLBACK_TEMPLATES.length];
+        fallbackShownCount++;
+        return { text: tpl(question), source: null };
       }
 
       var entry = FAQ[bestIdx];
