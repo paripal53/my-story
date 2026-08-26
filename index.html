@@ -338,20 +338,31 @@
       .hero-dark, .section, .cta-band { padding-top: var(--xxl); padding-bottom: var(--xxl); }
       .hero-grid { gap: var(--xl); }
 
-      /* 채팅창: 고정 높이 해제 → 내용에 맞춰 늘어나게 (입력창 잘림 방지) */
-      .chat-panel { height: auto; }
-      .chat-log { height: 220px; flex: 0 0 auto; }
-
-      /* 예시 질문 버튼: 세로로 쌓이지 않고 한 줄 가로 스크롤 */
-      .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; }
-      .chip { flex: 0 0 auto; white-space: nowrap; }
-
       /* 플로팅 챗봇: 모바일에서는 하단 시트처럼 크게 */
       .chat-launcher { bottom: 16px; right: 16px; width: 56px; height: 56px; }
       .chat-window {
         bottom: 84px; right: 12px; left: 12px;
         width: auto; max-width: none;
         height: calc(100vh - 100px); max-height: none;
+      }
+      .chat-window .chat-panel { height: 100%; }
+      .chat-log { flex: 1; }   /* 플로팅 윈도우 안에서 남는 공간을 채워 대화가 넓게 보이게 */
+
+      /* 예시 질문 버튼: 블록 그리드(2열)로 한눈에 보이게 */
+      .chips {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--xs);
+        overflow: visible;
+        flex-wrap: initial;
+      }
+      .chip {
+        flex: initial;
+        white-space: normal;      /* 긴 질문도 두 줄로 예쁘게 */
+        text-align: center;
+        padding: 10px 12px;
+        font-size: 12px;
+        line-height: 1.35;
       }
     }
   </style>
