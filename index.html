@@ -584,16 +584,7 @@
         <div class="msg bot">안녕하세요! 푸른과 함께 하는 인재 여러분, 입사를 진심으로 환영합니다. 무엇을 도와드릴까요?</div>
       </div>
 
-      <div class="chips" id="chips">
-        <button class="chip">급여일은 언제인가요?</button>
-        <button class="chip">연차는 어떻게 신청하나요?</button>
-        <button class="chip">근무 시간은 어떻게 되나요?</button>
-        <button class="chip">복지 제도가 궁금해요</button>
-        <button class="chip">주차장 이용이 가능한가요?</button>
-        <button class="chip">사내 규정은 어디서 보나요?</button>
-        <button class="chip">재직증명서는 어떻게 발급하나요?</button>
-        <button class="chip">임직원 매매 신고는 어떻게 하나요?</button>
-      </div>
+      <!-- 예시 질문 칩은 노출하지 않음 (2025.08 사용자 요청으로 제거) -->
 
       <form class="chat-input-row" id="chatForm">
         <input class="chat-input" id="chatInput" type="text" placeholder="질문을 입력하세요..." autocomplete="off" />
@@ -1185,12 +1176,14 @@
       sendQuestion(chatInput.value);
     });
 
-    // 예시 질문 칩 클릭
-    chips.addEventListener('click', function (e) {
-      if (e.target.classList.contains('chip')) {
-        sendQuestion(e.target.textContent);
-      }
-    });
+    // 예시 질문 칩 클릭 (칩 UI가 있는 경우에만 이벤트 연결)
+    if (chips) {
+      chips.addEventListener('click', function (e) {
+        if (e.target.classList.contains('chip')) {
+          sendQuestion(e.target.textContent);
+        }
+      });
+    }
 
     // ===================== Supabase 문의/신청 =====================
     // 공개용 key(anon/publishable)는 브라우저에 넣어 쓰도록 설계된 키라 그대로 두어도 안전합니다.
