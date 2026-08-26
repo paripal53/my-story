@@ -125,6 +125,7 @@
       background: var(--surface-dark-elevated);
       border: 1px solid rgba(255,255,255,.08);
       display: flex; flex-direction: column; height: 460px;
+      min-width: 0;   /* 그리드/플렉스 안에서 내용 때문에 옆으로 늘어나지 않도록 */
     }
     .chat-head {
       display: flex; align-items: center; gap: var(--sm);
@@ -264,7 +265,7 @@
       .chat-log { height: 220px; flex: 0 0 auto; }
 
       /* 예시 질문 버튼: 세로로 쌓이지 않고 한 줄 가로 스크롤 */
-      .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; }
       .chip { flex: 0 0 auto; white-space: nowrap; }
     }
   </style>
