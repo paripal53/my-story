@@ -1,0 +1,7 @@
+[mcp_servers.supabase]
+command = 'C:\Users\pc\nodejs\npx.cmd'
+args = [
+    "-y",
+    "@supabase/mcp-server-supabase@latest",
+    "--project-ref=cihbapsffkmaavziiamz",
+]
