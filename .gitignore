@@ -23,3 +23,6 @@ training_data/*
 
 # Claude Code MCP 로컬 설정 (환경별로 다를 수 있음)
 .mcp.json
+
+# Codex 등 로컬 IDE·도구 설정
+.codex/
